@@ -1,7 +1,4 @@
-﻿#nullable enable
-using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using Godot;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Entities.Creatures;
@@ -9,6 +6,7 @@ using MegaCrit.Sts2.Core.Entities.Players;
 using MegaCrit.Sts2.Core.Entities.RestSite;
 using MegaCrit.Sts2.Core.Nodes.RestSite;
 using MegaCrit.Sts2.Core.Rooms;
+using MintySpire2.MintySpire2.src.util;
 
 namespace MintySpire2.MintySpire2.src;
 
@@ -24,10 +22,10 @@ public static class RestHPRender
 
     private static readonly PropertyInfo OwnerProperty = AccessTools.Property(typeof(RestSiteOption), "Owner");
 
-    private static readonly List<WeakReference<NRestSiteButton>> ValidButtons = new();
+    private static readonly WeakNodeRegistry<NRestSiteButton> ValidButtons = new();
 
     /// <summary>
-    ///     After NRestSiteButton is ready, inject our label and immediately populate it.
+    ///     After NRestSiteButton is ready, inject the label and immediately populate it.
     /// </summary>
     [HarmonyPatch(typeof(NRestSiteButton), nameof(NRestSiteButton._Ready))]
     [HarmonyPostfix]
@@ -121,7 +119,7 @@ public static class RestHPRender
         extra.Text = $"HP: {currentHp} → {healedHp}";
         extra.Visible = true;
 
-        RegisterValidButton(button);
+        ValidButtons.Register(button);
     }
 
     /// <summary>
@@ -155,27 +153,7 @@ public static class RestHPRender
             // Can't check for RestSite because it's null at time of healing
             if (__instance.CombatState?.RunState.CurrentRoom?.RoomType == RoomType.Monster) return;
 
-            for (var i = ValidButtons.Count - 1; i >= 0; i--)
-            {
-                if (!ValidButtons[i].TryGetTarget(out var btn) || !GodotObject.IsInstanceValid(btn))
-                {
-                    ValidButtons.RemoveAt(i);
-                    continue;
-                }
-
-                UpdateExtraLabel(btn);
-            }
+            ValidButtons.ForEachLive(UpdateExtraLabel);
         }
-    }
-    
-    private static void RegisterValidButton(NRestSiteButton button)
-    {
-        //Cleanup Dead Buttons
-        for (var i = ValidButtons.Count - 1; i >= 0; i--)
-            if (!ValidButtons[i].TryGetTarget(out var b) || !GodotObject.IsInstanceValid(b))
-                ValidButtons.RemoveAt(i);
-            else if (ReferenceEquals(b, button)) return; // Avoid duplicates
-
-        ValidButtons.Add(new WeakReference<NRestSiteButton>(button));
     }
 }
