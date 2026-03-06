@@ -64,29 +64,32 @@ public static class RestHPRender
         // Attach to %Visuals so it follows the button's visuals scaling/layout.
         var parent = button.GetNodeOrNull<Control>("%Visuals") ?? button;
 
-        var extra = new Label
+        var label = new Label
         {
             Name = HealLabelNodeName,
             MouseFilter = Control.MouseFilterEnum.Ignore,
             Visible = false
         };
-
-        extra.AddThemeColorOverride("font_color", Colors.LightGreen);
-        extra.AddThemeFontSizeOverride("font_size", 16);
+        
+        var font = GD.Load<Font>("res://fonts/kreon_bold.ttf");
+        if (font != null)
+            label.AddThemeFontOverride((StringName)"font", font);
+        label.AddThemeColorOverride("font_color", Colors.LightGreen);
+        label.AddThemeFontSizeOverride("font_size", 16);
 
         // full width strip anchored at top, slightly above button.
-        extra.AnchorLeft = 0;
-        extra.AnchorRight = 1;
-        extra.AnchorTop = 0;
-        extra.AnchorBottom = 0;
+        label.AnchorLeft = 0;
+        label.AnchorRight = 1;
+        label.AnchorTop = 0;
+        label.AnchorBottom = 0;
 
-        extra.OffsetLeft = 12;
-        extra.OffsetRight = -12;
-        extra.OffsetTop = -18;
-        extra.OffsetBottom = -4;
-        extra.HorizontalAlignment = HorizontalAlignment.Left;
+        label.OffsetLeft = 12;
+        label.OffsetRight = -12;
+        label.OffsetTop = -18;
+        label.OffsetBottom = -4;
+        label.HorizontalAlignment = HorizontalAlignment.Left;
 
-        parent.AddChild(extra);
+        parent.AddChild(label);
     }
 
     /// <summary>

@@ -84,6 +84,10 @@ public static class SummedIncomingDamageRender
             MouseFilter = Control.MouseFilterEnum.Ignore,
             Visible = false
         };
+        
+        var font = GD.Load<Font>("res://fonts/kreon_bold.ttf");
+        if (font != null)
+            label.AddThemeFontOverride((StringName)"font", font);
         label.HorizontalAlignment = HorizontalAlignment.Left;
         label.VerticalAlignment = VerticalAlignment.Center;
         label.AddThemeColorOverride("font_color", Colors.Salmon);
